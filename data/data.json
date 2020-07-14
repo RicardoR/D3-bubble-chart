@@ -1,0 +1,56 @@
+[
+  {
+    "region": "Europe",
+    "percentaje": "60",
+    "countries": [
+      {
+        "region": "Spain",
+        "percentaje": "2"
+      },
+      {
+        "region": "Portugal",
+        "percentaje": "4"
+      },
+      {
+        "region": "Germany",
+        "percentaje": "12"
+      },
+      {
+        "region": "France",
+        "percentaje": "50"
+      },
+      {
+        "region": "Switzerland",
+        "percentaje": "20"
+      }
+    ]
+  },
+  {
+    "region": "Apac",
+    "percentaje": "20"
+  },
+  {
+    "region": "North America",
+    "percentaje": "2"
+  },
+  {
+    "region": "ANZ",
+    "percentaje": "2"
+  },
+  {
+    "region": "Sourth America",
+    "percentaje": "2"
+  },
+  {
+    "region": "Africa",
+    "percentaje": "4"
+  },
+  {
+    "region": "Dummy region 1",
+    "percentaje": "5"
+  },
+  {
+    "region": "Dummy region 2",
+    "percentaje": "5"
+  }
+]
