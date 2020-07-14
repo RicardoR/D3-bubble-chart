@@ -1,6 +1,7 @@
 // Less waste space with a square layout (the more rectangular the container is, the more space is lost)
 const width = 400;
 const height = 400;
+const backButton = d3.select('#back');
 
 let minRadiousValue, maxRadiousValue;
 
@@ -84,6 +85,7 @@ function initGraph(data) {
     .on('click', (d) => {
       if (d.data.countries && d.data.countries.length > 0) {
         initGraph(d.data.countries);
+        backButton.classed('hidden', false);
       }
     })
     .attr('transform', (d) => `translate(${d.x}, ${d.y})`);
@@ -111,4 +113,9 @@ function initGraph(data) {
     .style('font-size', 12)
     .attr('fill', '#475464')
     .text((d) => `${d.data.percentaje} %`);
+}
+
+function backToRegionView() {
+  initGraph(data);
+  backButton.classed('hidden', true);
 }

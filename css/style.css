@@ -5,3 +5,12 @@ body {
 .group {
   cursor: pointer;
 }
+
+#back {
+  cursor: pointer;
+  color: #475464;
+}
+
+.hidden {
+  display: none;
+}
