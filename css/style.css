@@ -14,3 +14,9 @@ body {
 .hidden {
   display: none;
 }
+
+.label {
+  text-anchor: middle;
+  font-size: 12px;
+  fill: '#475464';
+}

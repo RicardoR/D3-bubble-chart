@@ -17,31 +17,25 @@ const data = [
   {
     region: 'Europe',
     percentaje: '60',
+    shared: [20, 80],
     countries: [
-      { region: 'Spain', percentaje: '2' },
-      { region: 'Portugal', percentaje: '4' },
-      { region: 'Germany', percentaje: '12' },
-      { region: 'France', percentaje: '50' },
-      { region: 'Switzerland', percentaje: '20' },
+      { region: 'Spain', percentaje: 2, shared: [20, 80] },
+      { region: 'Portugal', percentaje: 4, shared: [30, 70] },
+      { region: 'Germany', percentaje: 12, shared: [10, 20] },
+      { region: 'France', percentaje: 50, shared: [5, 95] },
+      { region: 'Switzerland', percentaje: 20, shared: [30, 70] },
     ],
   },
-  { region: 'Apac', percentaje: '20' },
-  { region: 'Dummy region 1', percentaje: '10' },
-  { region: 'Africa', percentaje: '4' },
-  { region: 'North America', percentaje: '2' },
-  { region: 'ANZ', percentaje: '2' },
-  { region: 'Sourth America', percentaje: '2' },
+  { region: 'Apac', percentaje: 20, shared: [30, 70] },
+  { region: 'Africa', percentaje: 4, shared: [20, 80] },
+  { region: 'North America', percentaje: 6, shared: [15, 85] },
+  { region: 'ANZ', percentaje: 2, shared: [4, 96] },
+  { region: 'Sourth America', percentaje: 8, shared: [30, 70] },
 ];
 
 initGraph(data);
 
-// d3.json('../data/data.json').then((data) => initGraph(data));
-
 function initGraph(data) {
-  data.forEach((element) => {
-    element.percentaje = parseFloat(element.percentaje);
-  });
-
   // Pack only works if exists an object with children attr:
   const dataFormatted = { children: data };
 
@@ -61,7 +55,7 @@ function initGraph(data) {
     .domain([minValue, maxValue])
     .range(d3.schemePastel1);
 
-  svg.attr('width', width).attr('height', height);
+  svg.attr('width', width).attr('height', height).attr('class', 'bubble');
 
   const bubble = d3
     .pack()
@@ -71,14 +65,17 @@ function initGraph(data) {
 
   const root = d3.hierarchy(dataFormatted);
 
-  const packedData = bubble(root);
+  const arc = d3.arc().innerRadius(0);
+  const pie = d3.pie();
 
-  // Add groups
-  const leaf = svg
-    .selectAll('g')
-    .data(packedData.leaves())
+  const nodeData = bubble(root).children;
+  const nodes = svg.selectAll('g.node').data(nodeData);
+
+  const nodeEnter = nodes
     .enter()
     .append('g')
+    .attr('class', 'node')
+    .attr('transform', (d) => `translate(${d.x}, ${d.y})`)
     .attr('class', (d) =>
       d.data.countries && d.data.countries.length > 0 ? 'group' : ''
     )
@@ -87,32 +84,62 @@ function initGraph(data) {
         initGraph(d.data.countries);
         backButton.classed('hidden', false);
       }
+    });
+
+  const arcGs = nodeEnter.selectAll('g.arc').data((d) => {
+    return pie(d.data.shared).map((m) => {
+      m.r = d.r;
+      m.regionData = d.data;
+      return m;
+    });
+  });
+
+  const arcEnter = arcGs.enter().append('g').attr('class', 'arc');
+  arcEnter
+    .append('path')
+    .attr('d', (d) => {
+      arc.outerRadius(d.r);
+      return arc(d);
     })
-    .attr('transform', (d) => `translate(${d.x}, ${d.y})`);
+    .style('fill', (d, i) =>
+      i === 0 ? 'aliceblue' : myColor(d.regionData.percentaje)
+    );
 
-  // Append circles to group
-  leaf
-    .append('circle')
-    .attr('class', 'circle')
-    .attr('r', (d) => d.r)
-    .attr('fill', (d) => myColor(d.data.percentaje));
+  const regionLabels = nodeEnter
+    .selectAll('text.name-label')
+    .data((d) => [d.data.region]);
 
-  // Append text node with name data
-  leaf
-    .append('text')
-    .style('text-anchor', 'middle')
-    .style('font-size', 12)
-    .attr('fill', '#475464')
-    .text((d) => d.data.region);
-
-  // Append percentaje data
-  leaf
+  regionLabels
+    .enter()
     .append('text')
     .attr('dy', '1em')
-    .style('text-anchor', 'middle')
-    .style('font-size', 12)
-    .attr('fill', '#475464')
-    .text((d) => `${d.data.percentaje} %`);
+    .attr('class', 'name-label label')
+    .text(String);
+
+  const regionValues = nodeEnter
+    .selectAll('text.value-label')
+    .data((d) => [d.data.percentaje + '%']);
+
+  regionValues
+    .enter()
+    .append('text')
+    .attr('dy', '2em')
+    .attr('class', 'value-label label')
+    .text(String);
+
+  arcEnter
+    .append('text')
+    .attr('x', (d) => {
+      arc.outerRadius(d.r);
+      return arc.centroid(d)[0];
+    })
+    .attr('y', (d) => {
+      arc.outerRadius(d.r);
+      return arc.centroid(d)[1];
+    })
+    .attr('dy', '0.35')
+    .attr('class', 'label')
+    .text((d, i) => (i === 0 ? d.value : ''));
 }
 
 function backToRegionView() {
