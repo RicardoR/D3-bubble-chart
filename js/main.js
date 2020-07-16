@@ -102,7 +102,7 @@ function initGraph(data) {
       return arc(d);
     })
     .style('fill', (d, i) =>
-      i === 0 ? 'aliceblue' : myColor(d.regionData.percentaje)
+      i === 0 ? 'darkseagreen' : myColor(d.regionData.percentaje)
     );
 
   const regionLabels = nodeEnter

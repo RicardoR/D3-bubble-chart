@@ -20,3 +20,7 @@ body {
   font-size: 12px;
   fill: #475464;
 }
+
+svg {
+  background-color: aliceblue;
+}
