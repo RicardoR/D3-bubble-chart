@@ -17,6 +17,7 @@ const data = [
   {
     region: 'Europe',
     percentaje: '60',
+    shared: '30',
     countries: [
       { region: 'Spain', percentaje: '2' },
       { region: 'Portugal', percentaje: '4' },
@@ -25,12 +26,12 @@ const data = [
       { region: 'Switzerland', percentaje: '20' },
     ],
   },
-  { region: 'Apac', percentaje: '20' },
-  { region: 'Dummy region 1', percentaje: '10' },
-  { region: 'Africa', percentaje: '4' },
-  { region: 'North America', percentaje: '2' },
-  { region: 'ANZ', percentaje: '2' },
-  { region: 'Sourth America', percentaje: '2' },
+  { region: 'Apac', percentaje: '20', shared: '1' },
+  { region: 'Dummy region 1', percentaje: '10', shared: '0' },
+  { region: 'Africa', percentaje: '4', shared: '10' },
+  { region: 'North America', percentaje: '2', shared: '20' },
+  { region: 'ANZ', percentaje: '2', shared: '0' },
+  { region: 'Sourth America', percentaje: '2', shared: '5' },
 ];
 
 initGraph(data);
@@ -40,6 +41,7 @@ initGraph(data);
 function initGraph(data) {
   data.forEach((element) => {
     element.percentaje = parseFloat(element.percentaje);
+    element.shared = parseFloat(element.shared);
   });
 
   // Pack only works if exists an object with children attr:
@@ -55,6 +57,11 @@ function initGraph(data) {
     .scaleLinear()
     .domain([minValue, maxValue])
     .range([minRadiousValue, maxRadiousValue]);
+
+  const innerScale = d3
+    .scaleLinear()
+    .domain([0, 100])
+    .range([5, maxRadiousValue]);
 
   var myColor = d3
     .scaleOrdinal()
@@ -96,6 +103,37 @@ function initGraph(data) {
     .attr('class', 'circle')
     .attr('r', (d) => d.r)
     .attr('fill', (d) => myColor(d.data.percentaje));
+
+  const sharedData = leaf
+    .append('g')
+    .attr('transform', (d) =>
+      d.data.shared > 0
+        ? `translate(0, ${
+            -scale(d.data.percentaje) +
+            innerScale((d.data.shared / 100) * d.data.percentaje)
+          })`
+        : ''
+    );
+
+  sharedData
+    .append('circle')
+    .attr('r', (d) =>
+      d.data.shared > 0
+        ? innerScale((d.data.shared / 100) * d.data.percentaje)
+        : ''
+    )
+    .attr('fill', 'cadetblue');
+
+  sharedData
+    .append('text')
+    .style('text-anchor', 'middle')
+    .style('font-size', 12)
+    .attr('fill', '#475464')
+    .text((d) =>
+      innerScale((d.data.shared / 100) * d.data.percentaje) > 15
+        ? d.data.shared
+        : ''
+    );
 
   // Append text node with name data
   leaf

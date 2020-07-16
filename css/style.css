@@ -14,3 +14,7 @@ body {
 .hidden {
   display: none;
 }
+
+svg {
+  background-color: aliceblue;
+}
